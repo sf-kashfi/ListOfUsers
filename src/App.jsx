@@ -1,11 +1,5 @@
-import { useState } from "react";
 import "./App.css";
-import {
-  useGetUsersQuery,
-  useGetFavoritesQuery,
-  useAddFavoriteMutation,
-  useRemoveFavoriteMutation,
-} from "./service/service";
+import { useGetUsersQuery } from "./service/service";
 import {
   List,
   ListItem,
@@ -19,29 +13,37 @@ import {
   IconButton,
 } from "@mui/material";
 import { Star, StarBorder } from "@mui/icons-material";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleFavorite } from "./FavoriteSlice";
 
 function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const { data: users, error, isLoading } = useGetUsersQuery(searchTerm);
-  const { data: favorites } = useGetFavoritesQuery();
-  const [addFavorite] = useAddFavoriteMutation();
-  const [removeFavorite] = useRemoveFavoriteMutation();
+  // const { data: favoritesData } = useGetFavoritesQuery();
+  // const [addFavorite] = useAddFavoriteMutation();
+  // const [removeFavorite] = useRemoveFavoriteMutation();
+
+  const dispatch = useDispatch();
+  const favorites = useSelector((state) => state.favorites) || [];
 
   if (isLoading) return <CircularProgress />;
   if (error) return <Typography color="error">Error loading users!</Typography>;
 
-  const isFavorite = (userId) => favorites?.some((fav) => fav.id === userId);
+  // const isFavorite = (userId) => favorites?.some((fav) => fav.id === userId);
 
-  const handleFavoriteToggle = async (user) => {
-    if (isFavorite(user.id)) {
-      const favorite = favorites.find((fav) => fav.id === user.id);
-      await removeFavorite(favorite.id);
-    } else {
-      await addFavorite(user);
-    }
-  };
+  // const handleFavoriteToggle = async (user) => {
+  //   const isFavorite = favorites.some((fav) => fav.id === user.id);
+  //   if (isFavorite) {
+  //     const favoriteItem = favorites.find((fav) => fav.id === user.id);
+  //     await removeFavorite(favoriteItem.id);
+  //   } else {
+  //     await addFavorite(user);
+  //   }
+  //   dispatch(toggleFavorite(user));
+  // };
 
-  const filteredUsers = users.filter((user) =>
+  const filteredUsers = users?.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -62,26 +64,36 @@ function App() {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <List>
-        {filteredUsers?.map((user) => (
-          <ListItem
-            key={user.id}
-            divider
-            secondaryAction={
-              <IconButton onClick={() => handleFavoriteToggle(user)} edge="end">
-                {isFavorite(user.id) ? (
-                  <Star style={{ color: "gold" }} />
-                ) : (
-                  <StarBorder />
-                )}
-              </IconButton>
-            }
-          >
-            <ListItemAvatar>
-              <Avatar src={user.avatar} alt={user.name} />
-            </ListItemAvatar>
-            <ListItemText primary={user.name} />
-          </ListItem>
-        ))}
+        {filteredUsers?.map((user) => {
+          // const isFavorite = favorites?.some((fav) => fav.id === user.id);
+          const isFavorite =
+            Array.isArray(favorites) &&
+            favorites.find((fav) => fav.id === user.id);
+
+          return (
+            <ListItem
+              key={user.id}
+              divider
+              secondaryAction={
+                <IconButton
+                  onClick={() => dispatch(toggleFavorite(user))}
+                  edge="end"
+                >
+                  {isFavorite ? (
+                    <Star style={{ color: "gold" }} />
+                  ) : (
+                    <StarBorder />
+                  )}
+                </IconButton>
+              }
+            >
+              <ListItemAvatar>
+                <Avatar src={user.avatar} alt={user.name} />
+              </ListItemAvatar>
+              <ListItemText primary={user.name} />
+            </ListItem>
+          );
+        })}
       </List>
     </Paper>
   );

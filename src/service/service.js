@@ -15,31 +15,29 @@ export const usersApi = createApi({
     getUserById: builder.query({
       query: (id) => `users/${id}`,
     }),
-    getFavorites: builder.query({
-      query: () => "faivorites",
-    }),
-    addFavorite: builder.mutation({
-      query: (user) => ({
-        url: "faivorites",
-        method: "POST",
-        body: user,
-      }),
-      invalidatesTags: ["Favorites"],
-    }),
-    removeFavorite: builder.mutation({
-      query: (id) => ({
-        url: `faivorites/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Favorites"],
-    }),
+    // getFavorites: builder.query({
+    //   query: () => "faivorites",
+    // }),
+    // addFavorite: builder.mutation({
+    //   query: (user) => ({
+    //     url: "faivorites",
+    //     method: "POST",
+    //     body: user,
+    //   }),
+    // }),
+    // removeFavorite: builder.mutation({
+    //   query: (id) => ({
+    //     url: `faivorites/${id}`,
+    //     method: "DELETE",
+    //   }),
+    // }),
   }),
 });
 
 export const {
   useGetUsersQuery,
   useGetUserByIdQuery,
-  useGetFavoritesQuery,
-  useAddFavoriteMutation,
-  useRemoveFavoriteMutation,
+  //   useGetFavoritesQuery,
+  //   useAddFavoriteMutation,
+  //   useRemoveFavoriteMutation,
 } = usersApi;
